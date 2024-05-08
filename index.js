@@ -1,84 +1,89 @@
-const express = require('express')
-const uuid = require('uuid')
-const cors = require('cors')
+const express = require("express");
+const uuid = require("uuid");
+const cors = require("cors");
 
-const app = express()
-const port = 3001
+const app = express();
+const port = 3001;
 
-app.use(express.json())
-app.use(cors())
+app.use(express.json());
+app.use(cors());
 
-const orders = []
+const orders = [];
 
 const checkIdUser = (request, response, next) => {
-    const { id } = request.params
-    const index = orders.findIndex( order => order.id === id)
+  const { id } = request.params;
+  const index = orders.findIndex((order) => order.id === id);
 
-    if(index <0) {
-        return response.status(404).json({error: "Order not found"})
-    }
+  if (index < 0) {
+    return response.status(404).json({ error: "Contact not found" });
+  }
 
-    request.orderId = id
-    request.orderIndex = index
+  request.contactId = id;
+  request.contactIndex = index;
 
-    next()
-}
+  next();
+};
 
 const showMethods = (request, response, next) => {
-    console.log(request.url)
-    console.log(request.method)
+  console.log(request.url);
+  console.log(request.method);
 
-    next()
-}
+  next();
+};
 
-app.post('/orders', showMethods, (request, response) => {
-    const {clientName, order, price} = request.body
-    const newOrder = {id:uuid.v4(), order, clientName, price, status: "Em preparação"}
+app.post("/contacts", showMethods, (request, response) => {
+  const { contactName, phone } = request.body;
+  const newContact = {
+    id: uuid.v4(),
+    contactName,
+    phone,
+    status: "Novo Contato adicionado",
+  };
 
-    orders.push(newOrder)
-    return response.status(201).json(newOrder)
-})
+  orders.push(newContact);
+  return response.status(201).json(newContact);
+});
 
-app.get('/orders', showMethods,(request, response) => {
-    return response.json(orders)
-})
+app.get("/contacts", showMethods, (request, response) => {
+  return response.json(orders);
+});
 
-app.patch('/orders/:id', showMethods, checkIdUser, (request, response) => {
-    const index = request.orderIndex
-    const {status} = request.body
+app.patch("/contacts/:id", showMethods, checkIdUser, (request, response) => {
+  const index = request.contactIndex;
+  const { status } = request.body;
 
-    const updateOrder = orders[index]
+  const updateContact = orders[index];
 
-    updateOrder.status = status
+  updateContact.status = status;
 
-    return response.json(updateOrder)
-})
+  return response.json(updateContact);
+});
 
-app.put('/orders/:id', showMethods, checkIdUser, (request, response) => {
-    const id = request.orderId
-    const index = request.orderIndex
-    const { order, clientName, price, status} = request.body
+app.put("/contacts/:id", showMethods, checkIdUser, (request, response) => {
+  const id = request.contactId;
+  const index = request.contactIndex;
+  const { contactName, phone, status } = request.body;
 
-    const updatedOrder = {id, order, clientName, price, status}
+  const updatedContact = { id, contactName, phone, status };
 
-    orders[index] = updatedOrder
+  orders[index] = updatedContact;
 
-    return response.json(updatedOrder)
-})
+  return response.json(updatedContact);
+});
 
-app.delete('/orders/:id', showMethods, (request, response) => {
-    const index = request.orderIndex
+app.delete("/contacts/:id", showMethods, (request, response) => {
+  const index = request.orderIndex;
 
-    orders.splice(index, 1)
+  orders.splice(index, 1);
 
-    return response.status(204).json()
-})
+  return response.status(204).json();
+});
 
-app.get('/orders/:id', showMethods, checkIdUser, (request, response) => {
-    const index = request.orderIndex
-    return response.json(orders[index])
-})
+app.get("/contacts/:id", showMethods, checkIdUser, (request, response) => {
+  const index = request.orderIndex;
+  return response.json(orders[index]);
+});
 
 app.listen(port, () => {
-    console.log(`🚀 Server started on port ${port}`)
-})
+  console.log(`🚀 Server started on port ${port}`);
+});
